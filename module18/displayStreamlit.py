@@ -48,17 +48,26 @@ selected_Genre = st.sidebar.selectbox("Select Genre", ["All"]+list(books_df['Gen
 min_rating = st.sidebar.slider("Minimum user rating", 0.0, 5.0, 0.0, 0.1)
 max_price = st.sidebar.slider("Maximum price", 0, books_df['Price'].max(),books_df['Price'].max())
 
+filtered_books_df = books_df.copy()
+
+if selected_author !="All":
+    filtered_books_df = filtered_books_df[filtered_books_df['Author'] == selected_author]
+if selected_year !="All":
+    filtered_books_df = filtered_books_df[filtered_books_df['Year'] == int (selected_year)]
+if selected_Genre !="All":
+    filtered_books_df = filtered_books_df[filtered_books_df['Genre'] == selected_Genre]
 
 
+filtered_books_df = filtered_books_df[(filtered_books_df['User Rating'] >= min_rating) & (filtered_books_df['Price'] <= max_price)]
 
 st.title("Bestselling books on amazon")
 st.write("this app analyzes the amazon top selling books")
 
 st.subheader("summary statistics")
-total_books = books_df.shape[0]
-unique_titles = books_df['Name'].nunique()
-avg_rating = books_df['User Rating'].mean()
-avg_price = books_df['Price'].mean()
+total_books = filtered_books_df.shape[0]
+unique_titles = filtered_books_df['Name'].nunique()
+avg_rating = filtered_books_df['User Rating'].mean()
+avg_price = filtered_books_df['Price'].mean()
 
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("total books", total_books)
@@ -67,24 +76,24 @@ col3.metric("average rating", avg_rating)
 col4.metric("average price", avg_price)
 
 st.subheader("dataset preview")
-st.write(books_df.head())
+st.write(filtered_books_df.head())
 
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Top 10 Book Titles")
-    top_titles = books_df['Name'].value_counts().head(10)
+    top_titles = filtered_books_df['Name'].value_counts().head(10)
     st.bar_chart(top_titles)
 
 
 
 with col2:
     st.subheader("Top 10 Authors")
-    top_authors = books_df['Author'].value_counts().head(10)
+    top_authors = filtered_books_df['Author'].value_counts().head(10)
     st.bar_chart(top_authors)
 
 st.subheader("Genre Pie Chart")
-fig = px.pie(books_df, names="Genre", title="Most Liked Genre", color='Genre', color_discrete_sequence = px.colors.sequential.Plasma)
+fig = px.pie(filtered_books_df, names="Genre", title="Most Liked Genre", color='Genre', color_discrete_sequence = px.colors.sequential.Plasma)
 st.plotly_chart(fig)
 
